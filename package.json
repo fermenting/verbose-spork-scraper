@@ -1,28 +1,23 @@
 {
-  "name": "verbose-spork-scraper",
+  "name": "mongoose_skeleton",
   "version": "1.0.0",
-  "description": "Scrape the internet for the news you want. Curate your list of articles. Make notes on the fly.",
-  "main": "index.js",
+  "description": "",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "watch": "nodemon server.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fermenting/verbose-spork-scraper.git"
-  },
-  "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/fermenting/verbose-spork-scraper/issues"
-  },
-  "homepage": "https://github.com/fermenting/verbose-spork-scraper#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "cheerio": "^1.0.0-rc.2",
-    "express": "^4.16.4",
+    "express": "^4.16.3",
     "express-handlebars": "^3.0.0",
-    "mongoose": "^5.4.4",
+    "mongoose": "^5.3.16",
+    "morgan": "^1.9.1",
     "request": "^2.88.0"
   }
 }
