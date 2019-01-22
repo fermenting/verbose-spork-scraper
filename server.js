@@ -2,8 +2,6 @@ var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 
-// mongodb_uri: mongodb://heroku_36t8605w:565qpk7e7s66brcuingak7s7d9@ds163354.mlab.com:63354/heroku_36t8605w
-
 // Our scraping tools
 // Axios is a promised-based http library, similar to jQuery's Ajax method
 // It works on the client and on the server
@@ -36,6 +34,7 @@ var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines
 // Connect to the Mongo DB
 mongoose.Promise = Promise;
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
+// local, non-Heroku mongodb connection
 // mongoose.connect("mongodb://localhost/verbose_spork_scraper", { useNewUrlParser: true });
 
 // Routes
@@ -43,22 +42,56 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 // A GET route for scraping the echoJS website
 app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with axios
-  axios.get("http://www.echojs.com/").then(function(response) {
+  axios.get("https://www.npr.org").then(function(response) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(response.data);
 
-    // Now, we grab every h2 within an article tag, and do the following:
-    $("article h2").each(function(i, element) {
+    // Now, we grab NPR Articles at the div that contains all the elements we're looking for:
+    $("div.story-wrap").each(function(i, element) {
       // Save an empty result object
       var result = {};
 
       // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this)
-        .children("a")
-        .text();
-      result.link = $(this)
-        .children("a")
-        .attr("href");
+
+      result.slug = $(element)
+      .find("div")
+      .find("h2")
+      .find("a")
+      .text()
+      .trim()
+
+      result.title = $(element)
+      .find("div")
+      .find("a")
+      .find("h3")
+      .text()
+      
+      result.summary = $(element)
+      .find("a")
+      .next("a")
+      .find("p")
+      .text()
+      
+      result.link = $(element)
+      .find("div")
+      .find("a")
+      .attr("href");
+
+      result.imageSRC = $(element)
+      .find("figure")
+      .find("div")
+      .find("div")
+      .find("a")
+      .find("img")
+      .attr("src")
+
+      result.imageAlt = $(element)
+      .find("figure")
+      .find("div")
+      .find("div")
+      .find("a")
+      .find("img")
+      .attr("alt")
 
       // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
