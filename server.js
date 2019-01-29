@@ -1,14 +1,9 @@
 var express = require("express"); 
 var logger = require("morgan");
 var mongoose = require("mongoose");
-
-//express-handlebars
-//body-parser
-//request
-
-// Our scraping tools
-// Axios is a promised-based http library, similar to jQuery's Ajax method
-// It works on the client and on the server
+var handlebars = require("express-handlebars")
+var bodyParser = require("body-parser")
+var request = require("request")
 var axios = require("axios");
 var cheerio = require("cheerio");
 
@@ -31,7 +26,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // Connect to the Mongo DB
-// If deployed, use the deployed database. Otherwise use the local mongoHeadlines database
+// Use the deployed database. Otherwise use  local mongoHeadlines database
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
 
 // Set mongoose to leverage built in JavaScript ES6 Promises
@@ -41,8 +36,6 @@ mongoose.connect(MONGODB_URI, {
   useCreateIndex: true,
   useNewUrlParser: true 
 });
-// local, non-Heroku mongodb connection
-// mongoose.connect("mongodb://localhost/verbose_spork_scraper", { useNewUrlParser: true });
 
 // Routes
 
@@ -58,8 +51,9 @@ app.get("/scrape", function(req, res) {
       // Save an empty result object
       var result = {};
 
-      // Add the text and href of every link, and save them as properties of the result object
+      // Add the relevant data as properties of the result object
 
+      //slug, similar to category of story
       result.slug = $(element)
       .find("div")
       .find("h2")
@@ -67,23 +61,27 @@ app.get("/scrape", function(req, res) {
       .text()
       .trim()
 
+      //title, aka headline
       result.title = $(element)
       .find("div")
       .find("a")
       .find("h3")
       .text()
       
+      //summary of article
       result.summary = $(element)
       .find("a")
       .next("a")
       .find("p")
       .text()
       
+      //link to full article
       result.link = $(element)
       .find("div")
       .find("a")
       .attr("href");
 
+      //image src link
       result.imageSRC = $(element)
       .find("figure")
       .find("div")
@@ -92,6 +90,7 @@ app.get("/scrape", function(req, res) {
       .find("img")
       .attr("src")
 
+      //image alt text
       result.imageAlt = $(element)
       .find("figure")
       .find("div")
@@ -104,6 +103,7 @@ app.get("/scrape", function(req, res) {
       db.Article.remove({}, function(err) { 
         console.log('collection removed') 
      });
+     
       // Create a new Article using the `result` object built from scraping
       db.Article.create(result)
         .then(function(dbArticle) {
