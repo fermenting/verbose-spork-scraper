@@ -33,7 +33,10 @@ var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines
 // Set mongoose to leverage built in JavaScript ES6 Promises
 // Connect to the Mongo DB
 mongoose.Promise = Promise;
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
+mongoose.connect(MONGODB_URI, { 
+  useCreateIndex: true,
+  useNewUrlParser: true 
+});
 // local, non-Heroku mongodb connection
 // mongoose.connect("mongodb://localhost/verbose_spork_scraper", { useNewUrlParser: true });
 
